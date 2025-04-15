@@ -1,40 +1,59 @@
+#include "fcfs_scheduler.h"
 #include <iostream>
-#include <vector>
-#include <queue>
 
-struct process{
-    int pid;
-    int arr_time;
-    int burst_time;
-};
+FCFS_scheduler::FCFS_scheduler() : time(0),ind(0), cpu_is_free(true){}
 
-int main(){
-    int time = 0;
-    int ind = 0;
-    std::vector<process> all = {{1,1,4}, {2,6,7}, {9,0,3}};
-    std::queue<process> queue;
-    bool cpu_is_free = true;
-    process cur;
+void FCFS_scheduler::input_console(){
+    int n;
+    std::cout<<"Please give number of processes and the input:";
+    std::cin>>n;
+    for(int i = 0;i < n; ++i){
+        process temp;
+        std::cin>>temp.pid >> temp.arr_time >> temp.burst_time;
+        all.push_back(temp);
+    }
 
-    while(ind < all.size() || !queue.empty() || !cpu_is_free){
-        while(ind < all.size() && all[ind].arr_time <= time){
+}
+
+void FCFS_scheduler::check(){
+     while(ind < all.size() && all[ind].arr_time <= time){
             queue.push(all[ind]);
             ind++;
         }
-        if (cpu_is_free && !queue.empty()){
-            cur = queue.front();
+}
+
+void FCFS_scheduler::start(){
+    if(cpu_is_free && !queue.empty()){
+        cur = queue.front();
             queue.pop();
             std::cout<<"The time is "<<time<<":START of the process"<<cur.pid<<std::endl;
             cpu_is_free = false;
-        }
+    }
+}
 
-        if (!cpu_is_free){
+void FCFS_scheduler::run_process(){
+     if (!cpu_is_free){
             cur.burst_time--;
             if(cur.burst_time == 0){
-                std::cout<<"The time is "<<time<<":END of the process"<<cur.pid<<std::endl;
+                std::cout<<"The time is "<<time + 1<<":END of the process"<<cur.pid<<std::endl;
                 cpu_is_free = true;
             }
         }
+}
+
+void FCFS_scheduler::run(){
+    while (ind < all.size() || !queue.empty() || !cpu_is_free){
+        check();
+        start();
+        run_process();
         time++;
     }
+    
+}
+
+int main(){
+    FCFS_scheduler scheduler;
+    scheduler.input_console();
+    scheduler.run();
+       
 }
